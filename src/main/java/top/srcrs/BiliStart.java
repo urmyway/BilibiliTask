@@ -59,6 +59,10 @@ public class BiliStart {
         if(StringUtil.isNotBlank(System.getenv("SCKEY"))){
             SendServer.send(System.getenv("SCKEY"));
         }
+        // Server酱 测试号版
+        if(StringUtil.isNotBlank(System.getenv("SENDKEY"))){
+            SendServerChan.send(System.getenv("SENDKEY"));
+        }
         // PUSHPLUSTK
         if(StringUtil.isNotBlank(System.getenv("PUSHPLUSTK"))){
             SendPushPlus.send(System.getenv("PUSHPLUSTK"));
@@ -66,6 +70,11 @@ public class BiliStart {
         /* 此时数组的长度为4，就默认填写的是填写的钉钉 webHook 链接 */
         if(StringUtil.isNotBlank(System.getenv("DINGTALK"))){
             SendDingTalk.send(System.getenv("DINGTALK"));
+        }
+        /* Telegram Bot推送 */
+        if(StringUtil.isNotBlank(System.getenv("TELEGRAM_BOT_TOKEN"))
+                && StringUtil.isNotBlank(System.getenv("TELEGRAM_CHAT_ID"))){
+            SendTelegram.send(System.getenv("TELEGRAM_BOT_TOKEN"), System.getenv("TELEGRAM_CHAT_ID"));
         }
     }
 
@@ -77,7 +86,7 @@ public class BiliStart {
      */
     private static void scanTask() {
         List<Class<?>> clazzList = new ArrayList<>();
-        PackageScanner pack = new PackageScanner() {
+        TaskRegistry pack = new TaskRegistry() {
             @Override
             public void dealClass(String className) {
                 try{
@@ -91,10 +100,10 @@ public class BiliStart {
                 }
             }
         };
-        pack.scannerPackage("top.srcrs.task");
+        pack.runTasks();
 
         clazzList.stream().sorted(Comparator.comparing(Class::getName)).forEach(clazz -> {
-            try{
+            try {
                 Constructor<?> constructor = clazz.getConstructor();
                 Object object = constructor.newInstance();
                 Method method = object.getClass().getMethod("run");
@@ -106,13 +115,10 @@ public class BiliStart {
     }
 
     public static boolean checkEnv() {
-
         String BILI_JCT = System.getenv("BILI_JCT");
         String SESSDATA = System.getenv("SESSDATA");
         String DEDEUSERID = System.getenv("DEDEUSERID");
-        USER_DATA.setCookie(System.getenv("BILI_JCT"),
-                System.getenv("SESSDATA"),
-                System.getenv("DEDEUSERID"));
+        USER_DATA.setCookie(BILI_JCT, SESSDATA, DEDEUSERID);
         return StringUtil.isAnyBlank(BILI_JCT, SESSDATA, DEDEUSERID);
     }
 

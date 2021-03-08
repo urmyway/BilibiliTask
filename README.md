@@ -1,4 +1,4 @@
-<div align="center"> 
+<div align="center">
 <h1 align="center">Bilibili助手</h1>
 <img src="https://img.shields.io/github/issues/srcrs/BilibiliTask?color=green">
 <img src="https://img.shields.io/github/stars/srcrs/BilibiliTask?color=yellow">
@@ -22,36 +22,37 @@
 
 # 功能
 
-* [x] 自动获取经验(投币、点赞、分享视频) 
-* [x] 直播辅助(直播签到，自动送出即将过期的礼物) 
-* [x] 自动兑换银瓜子为硬币 
-* [x] 自动领取年度大会员每月权益(每月`1`号领取`B`币劵、权益礼包) 
+* [x] 自动获取经验(投币、点赞、分享视频)
+* [x] 直播辅助(直播签到，自动送出即将过期的礼物)
+* [x] 自动兑换银瓜子为硬币
+* [x] 自动领取年度大会员每月权益(每月`1`号领取`B`币劵、权益礼包)
 * [x] 月底自动用B币卷给自己充电(每月`28`号)
 * [x] 月底自动用B币卷兑换金瓜子(每月`28`号)
-* [x] 漫画辅助脚本(漫画`APP`签到) 
+* [x] 漫画辅助脚本(漫画`APP`签到)
 * [x] 支持功能自定义(自定义投币数量，银瓜子兑换硬币开关等)
 * [x] 账户失效提醒(发送到你的微信或者钉钉提醒、邮箱提醒)
 * [x] 支持多种方式推送运行结果(钉钉、微信)
+* [x] 支持Docker自己部署
 
 # 目录
 
 - [简介](#简介)
 - [功能](#功能)
 - [目录](#目录)
-- [使用方法](#使用方法)
+- [Github Actions部署方法](#github-actions-部署方法)
   - [1.fork本项目](#1fork本项目)
   - [2.准备需要的参数](#2准备需要的参数)
   - [3.将获取到参数填到Secrets](#3将获取到参数填到secrets)
   - [4.开启actions](#4开启actions)
   - [5.进行一次push操作](#5进行一次push操作)
+- [Docker部署方法](#Docker部署方法)
 - [进阶使用](#进阶使用)
   - [1.配置文件说明](#1配置文件说明)
   - [2.推送运行结果到微信](#2推送运行结果到微信)
   - [3.推送运行结果到钉钉](#3推送运行结果到钉钉)
-  - [4.自定义程序运行时间](#4自定义程序运行时间)
+  - [4.使用`Telegram bot`推送运行结果到`Telgram`群组](#4使用telegram-bot推送运行结果到telgram群组)
+  - [5.自定义程序运行时间](#5自定义程序运行时间)
 - [如何拉取最新代码](#如何拉取最新代码)
-  - [方法一](#方法一)
-  - [方法二](#方法二)
 - [更新日志](#更新日志)
 - [参考项目](#参考项目)
 
@@ -62,7 +63,7 @@
 ✔ | 本次程序运行，成功的执行了代码，并完成了任务(例如，分享视频，今日未分享过，那么程序就应该请求分享视频的接口，协助完成分享视频的任务)。
 ❌ | 可能两种操作会出现这个符号。1.程序成功的执行了，尝试去完成任务，但是中途遇到了未知的失败。2.程序成功的执行了，检测到此类任务已经完成(例如，分享视频，今日已经分享过，那么程序不应该请求分享视频的接口，无需协助完成分享视频的任务)，就无需再去完成。可以理解为跳过或遇到错误。
 
-# 使用方法
+# Github Actions 部署方法
 
 ## 1.fork本项目
 
@@ -154,13 +155,25 @@ manga: true
 upLive: 477137547
 #对于进行投币的视频选择是否点赞 , 默认不点赞 [0,1]
 selectLike: 0
-``` 
+```
 
 如实在没有想给他投币的up主，可以考虑把我填上哦 `477137547` 😄
 
+# Docker部署方法
+
+* 使用如下命令请自行替换所需的环境变量
+* **每天00:01分运行程序**
+```(shell script)
+docker run -d \
+  --env BILI_JCT=自行填写 \
+  --env DEDEUSERID=自行填写 \
+  --env SESSDATA=自行填写 \
+  timmyovo/bilibilitask
+```
+
 ## 2.推送运行结果到微信
 
-### 使用`server`酱将程序运行结果推送到微信。
+### 使用`server`酱将程序运行结果推送到微信
 
 `server`酱官网：`http://sc.ftqq.com`
 
@@ -177,6 +190,18 @@ SCKEY | xxxxx
 这样就可以在微信接收到运行结果了。
 
 ![](img/server酱推送的结果.jpg)
+
+### 使用`server`酱测试号版推送运行结果到微信
+
+`server`酱测试号版官网：`https://sct.ftqq.com/`
+
++ 按照`server`酱测试号版官网使用教程，用微信扫码登录。
+
++ 获得`SENDKEY`并将其填入到`Secrets`中。
+
+Name | Value
+-|-
+SENDKEY | xxxxx
 
 ### 使用`push+`推送运行结果到微信
 
@@ -198,20 +223,42 @@ PUSHPLUSTK | xxxxx
 
 2.获取钉钉自定义机器人的`Webhook`，将其填写到`Secrets`中
 
-键值对如下格式: 
+键值对如下格式:
 
 Name | Value
 -|-
-DINGTALK | https://oapi.dingtalk.com/robot/send?access_token=064559acaa666c43d5ba197656594f288f3acef9a64f4f43218beddd1c7b7050
+DINGTALK | <https://oapi.dingtalk.com/robot/send?access_token=064559acaa666c43d5ba197656594f288f3acef9a64f4f43218beddd1c7b7050>
 
 ![](img/获取钉钉Webhook.gif)
 
-## 4.自定义程序运行时间
+## 4.使用`Telegram bot`推送运行结果到`Telgram`群组
+
+1. 首先需要创建 telegram bot 并获取 telegram bot token，可以参考[文档](https://docs.microsoft.com/en-us/azure/bot-service/bot-service-channel-connect-telegram)；
+2. 将机器人加入群组中，并获取群组ID，查看[Stackoverflow问答](https://stackoverflow.com/a/32572159)；
+3. 将 telegram bot token 和群组ID添加到`Secrets`中即可。
+
+在`Secrets`中的`Name`和`Value`格式如下：
+
+Name               | Value
+-------------------|------
+TELEGRAM_BOT_TOKEN | xxxxx
+TELEGRAM_CHAT_ID   | xxxxx
+
+![](img/TgBot运行结果.jpg)
+
+## 5.自定义程序运行时间
 
 在`.github/workflows/Bilibili.yml`修改`cron`表达式，需要注意的是，`cron`表达式是国际时间，
 需要换算到国内时间，往后推8个小时，例如国际时间是12点钟，则在国内是20点钟。
 
 ![](img/自定义程序运行时间.png)
+
+# Docker
+
+* **每天00:01分运行程序**
+```
+docker run -d --env BILI_JCT=自行填写 --env DEDEUSERID=自行填写 --env SESSDATA=自行填写 timmyovo/bilibilitask
+```
 
 # 如何拉取最新代码
 
@@ -219,7 +266,7 @@ DINGTALK | https://oapi.dingtalk.com/robot/send?access_token=064559acaa666c43d5b
 
 在`github`安装`pull`，会自动帮你检测上游仓库，并帮助你更新代码
 
-地址在这: https://github.com/apps/pull
+地址在这: <https://github.com/apps/pull>
 
 由于添加有配置文件`config.yml`，有可能会覆盖你自定义的`config.yml`，需要注意。
 
@@ -252,12 +299,28 @@ git pull upstream main
 4、将更新后的代码推送到你的仓库
 
 ```sh
-git push origin main 
+git push origin main
 ```
 
 由于添加有配置文件`config.yml`，有可能会覆盖你自定义的`config.yml`，需要注意。
 
 # 更新日志
+
+## 2020-02-06
+
++ 避免投币给单一`up`主
+
++ 更新`b`币卷充电接口
+
++ 修复投币计算(投币数为负数)
+
++ 修复近30天未投币出现的bug
+
+## 2020-12-17
+
++ 增加`server`酱测试号版推送，感谢[sh4wnzec](https://github.com/sh4wnzec)
+
++ 增加`Telegram bot`推送，感谢[qiwihui](https://github.com/qiwihui)
 
 ## 2020-12-07
 
